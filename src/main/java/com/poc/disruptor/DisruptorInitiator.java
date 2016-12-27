@@ -2,13 +2,11 @@ package com.poc.disruptor;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import com.poc.disruptor.config.Constants;
 import com.poc.disruptor.config.DisruptorConfig;
 import com.poc.disruptor.config.RouteConfigContext;
-import com.poc.disruptor.handlers.Filter1Handler;
-import com.poc.disruptor.handlers.Filter2Handler;
-import com.poc.disruptor.handlers.Filter3Handler;
-import com.poc.disruptor.handlers.Filter4Handler;
+import com.poc.disruptor.handlers.*;
 import com.poc.disruptor.publisher.DisruptorEventPublisher;
 
 import java.util.ArrayList;
@@ -36,7 +34,7 @@ public class DisruptorInitiator {
                         Constants.DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND)), parameters
                 .getOrDefault(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL,
                         Constants.DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
-        List<EventHandler> eventHandlers = new ArrayList<>();
+        List<DisruptorEventHandler> eventHandlers = new ArrayList<>();
         eventHandlers.add(new Filter1Handler());
         eventHandlers.add(new Filter1Handler());
         eventHandlers.add(new Filter1Handler());
@@ -45,16 +43,19 @@ public class DisruptorInitiator {
         eventHandlers.add(new Filter4Handler());
 
         disruptorConfig.setEventHandlers(eventHandlers);
-        // TODO: Need to have a proper service
         DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
 
 
         DisruptorConfig disruptorConfigure = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
-        RingBuffer disruptor = disruptorConfigure.getDisruptor();
+        Disruptor disruptor = disruptorConfigure.getDisruptor();
+
+        disruptor.handleEventsWith(new Filter1Handler()).then(new Filter2Handler(), new Filter3Handler(), new Filter4Handler());
+        disruptor.start();
+
         RouteConfigContext configContext = new RouteConfigContext();
         configContext.setTotalCount(10);
         for(int i = 0; i < 10; i++) {
-            Route msg = new Route("prabath" + i,i, configContext);
+            Route msg = new Route("prabath" + i,i, configContext, 4);
             disruptor.publishEvent(new DisruptorEventPublisher(msg));
         }
     }

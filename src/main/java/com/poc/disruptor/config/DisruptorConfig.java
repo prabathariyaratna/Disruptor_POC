@@ -2,6 +2,7 @@ package com.poc.disruptor.config;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import com.poc.disruptor.handlers.DisruptorEventHandler;
 
 import java.util.ArrayList;
@@ -19,9 +20,9 @@ public class DisruptorConfig {
     private int noOfThreadsInConsumerWorkerPool;
     private String disruptorWaitStrategy;
     private boolean notShared;
-    private List<RingBuffer> disruptorMap = new ArrayList<RingBuffer>();
+    private List<Disruptor> disruptorMap = new ArrayList<Disruptor>();
     private AtomicInteger index = new AtomicInteger(0);
-    private List<EventHandler> eventHandlers;
+    private List<DisruptorEventHandler> eventHandlers;
 
     public DisruptorConfig() {
 
@@ -67,13 +68,13 @@ public class DisruptorConfig {
         return !notShared;
     }
 
-    public RingBuffer getDisruptor() {
+    public Disruptor getDisruptor() {
         int ind = index.getAndIncrement() % noDisruptors;
         return disruptorMap.get(ind);
     }
 
-    public void addDisruptor(RingBuffer ringBuffer) {
-        disruptorMap.add(ringBuffer);
+    public void addDisruptor(Disruptor disruptor) {
+        disruptorMap.add(disruptor);
     }
 
     public void notifyChannelInactive() {
@@ -84,11 +85,11 @@ public class DisruptorConfig {
         return noOfThreadsInConsumerWorkerPool;
     }
 
-    public List<EventHandler> getEventHandlers() {
+    public List<DisruptorEventHandler> getEventHandlers() {
         return eventHandlers;
     }
 
-    public void setEventHandlers(List<EventHandler> eventHandlers) {
+    public void setEventHandlers(List<DisruptorEventHandler> eventHandlers) {
         this.eventHandlers = eventHandlers;
     }
 

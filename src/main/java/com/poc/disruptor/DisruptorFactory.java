@@ -7,6 +7,8 @@ import com.poc.disruptor.config.Constants;
 import com.poc.disruptor.config.DisruptorConfig;
 import com.poc.disruptor.config.DisruptorEvent;
 import com.poc.disruptor.exception.GenericExceptionHandler;
+import com.poc.disruptor.handlers.DisruptorEventHandler;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,14 +32,15 @@ public class DisruptorFactory {
                     executorService,
                     ProducerType.SINGLE,
                     inboundWaitStrategy);
-            ExceptionHandler exh = new GenericExceptionHandler();
+           /* ExceptionHandler exh = new GenericExceptionHandler();
 
                 disruptor.handleEventsWith(disruptorConfig.getEventHandlers().toArray(new EventHandler[disruptorConfig.getEventHandlers().size()]));
-                for (EventHandler eventHandler : disruptorConfig.getEventHandlers()) {
-                    disruptor.handleExceptionsFor(eventHandler).with(exh);
-                }
+                for (DisruptorEventHandler eventHandler : disruptorConfig.getEventHandlers()) {
+                    eventHandler.setDisruptor(disruptor);
+                    disruptor.handleEventsWith(eventHandler).then(exh);
+                }*/
 
-            disruptorConfig.addDisruptor(disruptor.start());
+            disruptorConfig.addDisruptor(disruptor);
         }
         disruptorConfigHashMap.put(type, disruptorConfig);
     }

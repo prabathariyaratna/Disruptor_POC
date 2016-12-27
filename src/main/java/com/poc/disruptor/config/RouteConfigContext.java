@@ -26,7 +26,7 @@ public class RouteConfigContext {
         return finalizeRoutes;
     }
 
-    public void setFinalizeRoutes(Route route) {
+    public void addFinalizeRoutes(Route route) {
 
         if(finalizeRoutes == null) {
             this.finalizeRoutes = new ArrayList<>();

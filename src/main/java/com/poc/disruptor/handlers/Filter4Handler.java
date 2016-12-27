@@ -1,5 +1,6 @@
 package com.poc.disruptor.handlers;
 
+import com.lmax.disruptor.RingBuffer;
 import com.poc.disruptor.config.DisruptorEvent;
 import com.poc.disruptor.Route;
 
@@ -8,11 +9,25 @@ import com.poc.disruptor.Route;
  */
 public class Filter4Handler extends DisruptorEventHandler{
 
+    private static final String NAME = "filter4";
 
     public void onEvent(DisruptorEvent carbonDisruptorEvent, long l, boolean b) throws Exception {
         Route msg = (Route) carbonDisruptorEvent.getEvent();
-        if(msg.canExecute() && msg.getConfigContext().isComplete()) {
-            System.out.println("===========44444==========Finallllll" + msg.getName() + "======" + msg.getAge());
+        if(msg.canExecute() && msg.getAge() % 2 == 0) {
+            System.out.println("===========44444==========" + msg.getName() + "======" + msg.getAge());
+            msg.visited(NAME);
+            msg.setValid(true);
+        } else {
+            msg.setValid(false);
+        }
+
+        if(msg.isFinalized()) {
+            msg.getConfigContext().addFinalizeRoutes(msg);
+            System.out.println("===========4444== Finalize========" + msg.getName() + "======" + msg.getAge());
+        }
+
+        if(msg.getConfigContext().isComplete()) {
+            System.out.println("===========Finished========");
         }
     }
 
@@ -24,4 +39,5 @@ public class Filter4Handler extends DisruptorEventHandler{
         }
 
     }
+
 }

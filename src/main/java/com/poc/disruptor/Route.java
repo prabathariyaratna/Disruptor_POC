@@ -2,6 +2,10 @@ package com.poc.disruptor;
 
 import com.poc.disruptor.config.RouteConfigContext;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 /**
  * Created by prabath on 12/26/16.
  */
@@ -11,12 +15,15 @@ public class Route {
     private int age;
     private boolean filterOneExecutes;
     private RouteConfigContext configContext;
-    private boolean valid = true;
+    private boolean valid;
+    private List<String> executedFilters;
+    private int numberOfFilters;
 
-    public Route(String name, int age, RouteConfigContext configContext) {
+    public Route(String name, int age, RouteConfigContext configContext, int numberOfFilters) {
         this.name = name;
         this.age = age;
         this.configContext = configContext;
+        this.numberOfFilters = numberOfFilters;
     }
 
     public String getName() {
@@ -57,5 +64,21 @@ public class Route {
 
     public void setValid(boolean valid) {
         this.valid = valid;
+    }
+
+    public void visited(String name) {
+        if(executedFilters == null) {
+            this.executedFilters = new ArrayList<>();
+        }
+
+        this.executedFilters.add(name);
+    }
+
+    public boolean isFinalized() {
+        if(executedFilters == null || executedFilters.size() != numberOfFilters) {
+            return false;
+        }
+
+        return true;
     }
 }
