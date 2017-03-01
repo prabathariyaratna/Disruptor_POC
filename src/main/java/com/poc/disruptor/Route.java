@@ -4,6 +4,8 @@ import com.poc.disruptor.config.RouteConfigContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 
 /**
@@ -18,12 +20,14 @@ public class Route {
     private boolean valid;
     private List<String> executedFilters;
     private int numberOfFilters;
+    private CountDownLatch countDownLatch;
 
     public Route(String name, int age, RouteConfigContext configContext, int numberOfFilters) {
         this.name = name;
         this.age = age;
         this.configContext = configContext;
         this.numberOfFilters = numberOfFilters;
+        this.valid = true;
     }
 
     public String getName() {
@@ -80,5 +84,13 @@ public class Route {
         }
 
         return true;
+    }
+
+    public CountDownLatch getCountDownLatch() {
+        return countDownLatch;
+    }
+
+    public void setCountDownLatch(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
     }
 }

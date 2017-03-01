@@ -18,7 +18,7 @@ public class RouteConfigContext {
         return missCount;
     }
 
-    public synchronized void increase() {
+    public synchronized void increaseMissCount() {
         ++this.missCount;
     }
 
@@ -26,7 +26,7 @@ public class RouteConfigContext {
         return finalizeRoutes;
     }
 
-    public void addFinalizeRoutes(Route route) {
+    public synchronized void addFinalizeRoutes(Route route) {
 
         if(finalizeRoutes == null) {
             this.finalizeRoutes = new ArrayList<>();

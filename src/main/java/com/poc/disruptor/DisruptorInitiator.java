@@ -1,7 +1,5 @@
 package com.poc.disruptor;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.poc.disruptor.config.Constants;
 import com.poc.disruptor.config.DisruptorConfig;
@@ -13,11 +11,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by prabath on 12/24/16.
  */
 public class DisruptorInitiator {
+
 
     public static void main(String args[]) {
 
@@ -49,15 +50,30 @@ public class DisruptorInitiator {
         DisruptorConfig disruptorConfigure = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
         Disruptor disruptor = disruptorConfigure.getDisruptor();
 
-        disruptor.handleEventsWith(new Filter1Handler()).then(new Filter2Handler(), new Filter3Handler(), new Filter4Handler());
+        disruptor.handleEventsWith(new Filter1Handler(), new Filter1Handler(),new Filter1Handler()).then(new Filter2Handler(), new Filter2Handler(), new Filter3Handler(), new Filter4Handler());
         disruptor.start();
-
         RouteConfigContext configContext = new RouteConfigContext();
-        configContext.setTotalCount(10);
-        for(int i = 0; i < 10; i++) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        long lStartTime = System.nanoTime();
+        for(int i = 0; i < 100; i++) {
+
+            configContext.setTotalCount(100);
             Route msg = new Route("prabath" + i,i, configContext, 4);
+            msg.setCountDownLatch(countDownLatch);
             disruptor.publishEvent(new DisruptorEventPublisher(msg));
         }
+
+        System.out.println("=============================== Taking Semaphore ======================================");
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("=============================== took Semaphore ======================================");
+        long lEndTime = System.nanoTime();
+        long output = lEndTime - lStartTime;
+        disruptor.shutdown();
+        System.out.println("=============================== END ===================================Milliseconds===" + output / 1000000);
     }
 }
 
